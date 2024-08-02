@@ -1,0 +1,33 @@
+name: deploy_staging
+
+on:
+    push:
+        branches:
+            - staging
+    workflow_dispatch:
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: checkout
+              uses: actions/checkout@v3
+            - name: copy files to server
+              uses: garygrossgarten/github-action-scp@v0.8.0
+              with:
+                  local: /home/runner/work/bo-api/bo-api
+                  remote: staging/bo-api-stg/
+                  host: 15.156.39.155
+                  username: ubuntu
+                  password: AWSbidsloth2024Bo
+            - name: restart account service
+              uses: appleboy/ssh-action@v0.1.5
+              with:
+                  host: 15.156.39.155
+                  port: 22
+                  username: ubuntu
+                  password: AWSbidsloth2024Bo
+                  script: |
+                      cd ./staging/bo-api-stg/
+                      npm install
+                      pm2 restart bo-api-stg

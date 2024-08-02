@@ -1,0 +1,32 @@
+name: update_environment_variables
+
+on:
+    workflow_dispatch:
+        inputs:
+            variable:
+                description: "Enter variable here"
+                required: true
+                default: "VARIABLE"
+            value:
+                description: "Enter value here"
+                required: true
+                default: "value"
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - run: |
+                  echo "Variable: ${{ github.event.inputs.variable }}"
+                  echo "Value: ${{ github.event.inputs.value }}"
+
+            - name: restart account service
+              uses: appleboy/ssh-action@v0.1.5
+              with:
+                  host: 34.205.72.223
+                  port: 22
+                  username: ubuntu
+                  password: alphabetagamma
+                  script: |
+                      cd ./staging/backend/services/accounts
+                      echo "${{ github.event.inputs.variable }}=${{ github.event.inputs.value }}" >> .env
